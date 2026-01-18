@@ -1,0 +1,27 @@
+{
+    "name": "express-mysql-user-api",
+    "version": "1.0.0",
+    "description": "A RESTful User Management API using Express and MySQL, featuring CRUD operations, query filtering, pagination, sorting, bulk user creation, and input validation. Suitable for backend practice and portfolio showcase.",
+    "homepage": "https://github.com/Non-Spk/express-mysql-user-api#readme",
+    "bugs": {
+        "url": "https://github.com/Non-Spk/express-mysql-user-api/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Non-Spk/express-mysql-user-api.git"
+    },
+    "license": "MIT License",
+    "author": "",
+    "type": "commonjs",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "dotenv": "^17.2.3",
+        "express": "^5.2.1",
+        "morgan": "^1.10.1",
+        "mysql2": "^3.16.1",
+        "nodemon": "^3.1.11"
+    }
+}
