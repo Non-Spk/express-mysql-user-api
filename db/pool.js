@@ -1,30 +1,36 @@
 const mysql = require('mysql2/promise')
 
-if (!process.env.DB_NAME || !process.env.DB_USER) {
-    console.error('Missing required database environment variables')
-    process.exit(1)
+const MAX_RETRY = 3
+const RETRY_DELAY = 1000
+
+const sleep = (ms) => new Promise(r => setTimeout(r, ms))
+
+let pool
+
+const connectWithRetry = async () => {
+    for (let i = 1; i <= MAX_RETRY; i++) {
+        try {
+            pool = mysql.createPool({
+                host: process.env.DB_HOST || 'localhost',
+                port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306,
+                user: process.env.DB_USER,
+                password: process.env.DB_PASSWORD,
+                database: process.env.DB_NAME,
+                waitForConnections: true,
+                connectionLimit: 10
+            })
+
+            const conn = await pool.getConnection()
+            conn.release()
+
+            console.log('MySQL connected')
+            return pool
+        } catch (err) {
+            console.error(`DB connection failed (${i}/${MAX_RETRY})`)
+            if (i === MAX_RETRY) throw err
+            await sleep(RETRY_DELAY)
+        }
+    }
 }
 
-const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-})
-
-    ; (async () => {
-        try {
-            const conn = await pool.getConnection()
-            console.log('MySQL connected')
-            conn.release()
-        } catch (err) {
-            console.error('MySQL connection failed:', err.message)
-            process.exit(1)
-        }
-    })()
-
-module.exports = pool
+module.exports = connectWithRetry()

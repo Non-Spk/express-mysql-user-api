@@ -1,5 +1,6 @@
 const dotenv = require('dotenv')
 dotenv.config({ path: './config.env' })
+
 const morgan = require('morgan')
 const express = require('express')
 const userRouter = require('./routers/user_router')
@@ -12,10 +13,19 @@ app.use(morgan('dev'))
 
 app.use('/users', userRouter)
 
+app.use((req, res) => {
+    res.status(404).json({
+        status: 'fail',
+        message: 'Route not found'
+    })
+})
+
 app.use((err, req, res, next) => {
-    res.status(500).json({
+    console.error(err)
+
+    res.status(err.statusCode || 500).json({
         status: 'error',
-        message: err.message
+        message: err.message || 'Internal Server Error'
     })
 })
 
