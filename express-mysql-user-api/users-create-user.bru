@@ -1,0 +1,28 @@
+meta {
+  name: users/create-user
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/users
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "User One",
+    "email": "user1@test.com",
+    "age": 25
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -2,12 +2,13 @@ const mysql = require('mysql2/promise')
 
 const MAX_RETRY = 3
 const RETRY_DELAY = 1000
-
 const sleep = (ms) => new Promise(r => setTimeout(r, ms))
 
 let pool
 
 const connectWithRetry = async () => {
+    if (pool) return pool
+
     for (let i = 1; i <= MAX_RETRY; i++) {
         try {
             pool = mysql.createPool({
@@ -33,4 +34,4 @@ const connectWithRetry = async () => {
     }
 }
 
-module.exports = connectWithRetry()
+module.exports = connectWithRetry

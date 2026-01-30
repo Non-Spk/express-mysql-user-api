@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "express-mysql-user-api",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

@@ -1,19 +1,23 @@
 const express = require('express')
 const userService = require('../services/user_service')
+const { protect, restrictTo } = require('../middlewares/auth')
 
 const router = express.Router()
 
+// auth
+router.post('/signup', userService.signup)
+router.post('/login', userService.login)
+
+// protected routes
 router
     .route('/')
-    .get(userService.getUsers)
-    .post(userService.createUser)
-
-router.post('/bulk-users', userService.bulkCreateUsers)
+    .get(protect, restrictTo('admin'), userService.getUsers)
+    .post(protect, restrictTo('admin'), userService.createUser)
 
 router
     .route('/:id')
-    .get(userService.getUserById)
-    .put(userService.updateUserById)
-    .delete(userService.deleteUserById)
+    .get(protect, userService.getUserById)
+    .put(protect, restrictTo('admin'), userService.updateUserById)
+    .delete(protect, restrictTo('admin'), userService.deleteUserById)
 
 module.exports = router

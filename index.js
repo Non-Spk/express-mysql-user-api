@@ -6,29 +6,18 @@ const express = require('express')
 const userRouter = require('./routers/user_router')
 
 const app = express()
-const port = process.env.PORT || 8080
-
 app.use(express.json())
 app.use(morgan('dev'))
 
 app.use('/users', userRouter)
 
 app.use((req, res) => {
-    res.status(404).json({
-        status: 'fail',
-        message: 'Route not found'
-    })
+    res.status(404).json({ message: 'Route not found' })
 })
 
 app.use((err, req, res, next) => {
     console.error(err)
-
-    res.status(err.statusCode || 500).json({
-        status: 'error',
-        message: err.message || 'Internal Server Error'
-    })
+    res.status(500).json({ message: err.message || 'Internal Server Error' })
 })
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`)
-})
+app.listen(8080, () => console.log('Server running on port 8080'))

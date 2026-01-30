@@ -1,0 +1,20 @@
+meta {
+  name: users/get-user-by-id
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/users/1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
