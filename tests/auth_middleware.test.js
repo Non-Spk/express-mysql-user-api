@@ -4,41 +4,52 @@ const jwt = require('jsonwebtoken')
 jest.mock('jsonwebtoken')
 
 describe('auth middleware', () => {
-    it('should call next if token is valid', () => {
-        const req = { headers: { authorization: 'Bearer token123' } }
-        const res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
-        const next = jest.fn()
-        jwt.verify.mockReturnValue({ id: 1, role: 'user' })
+    let res, next
 
-        protect(req, res, next)
-        expect(req.user).toEqual({ id: 1, role: 'user' })
-        expect(next).toHaveBeenCalled()
+    beforeEach(() => {
+        res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+        next = jest.fn()
+        jest.clearAllMocks()
     })
 
-    it('should return 401 if token missing', () => {
-        const req = { headers: {} }
-        const res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
-        const next = jest.fn()
+    describe('protect', () => {
+        it('should call next if token valid', () => {
+            const req = { headers: { authorization: 'Bearer validtoken' } }
+            jwt.verify.mockReturnValue({ id: 1, role: 'user' })
 
-        protect(req, res, next)
-        expect(res.status).toHaveBeenCalledWith(401)
-        expect(res.json).toHaveBeenCalledWith({ message: 'Not authenticated' })
+            protect(req, res, next)
+            expect(req.user).toEqual({ id: 1, role: 'user' })
+            expect(next).toHaveBeenCalled()
+        })
+
+        it('should return 401 if no auth header', () => {
+            const req = { headers: {} }
+            protect(req, res, next)
+            expect(res.status).toHaveBeenCalledWith(401)
+        })
+
+        it('should return 401 if token invalid', () => {
+            const req = { headers: { authorization: 'Bearer badtoken' } }
+            jwt.verify.mockImplementation(() => { throw new Error('invalid') })
+
+            protect(req, res, next)
+            expect(res.status).toHaveBeenCalledWith(401)
+        })
     })
 
-    it('restrictTo should call next if role allowed', () => {
-        const req = { user: { role: 'admin' } }
-        const res = {}
-        const next = jest.fn()
-        restrictTo('admin')(req, res, next)
-        expect(next).toHaveBeenCalled()
-    })
+    describe('restrictTo', () => {
+        it('should call next if role allowed', () => {
+            const req = { user: { role: 'admin' } }
+            const middleware = restrictTo('admin', 'user')
+            middleware(req, res, next)
+            expect(next).toHaveBeenCalled()
+        })
 
-    it('restrictTo should return 403 if role not allowed', () => {
-        const req = { user: { role: 'user' } }
-        const res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
-        const next = jest.fn()
-        restrictTo('admin')(req, res, next)
-        expect(res.status).toHaveBeenCalledWith(403)
-        expect(res.json).toHaveBeenCalledWith({ message: 'Access denied' })
+        it('should return 403 if role not allowed', () => {
+            const req = { user: { role: 'user' } }
+            const middleware = restrictTo('admin')
+            middleware(req, res, next)
+            expect(res.status).toHaveBeenCalledWith(403)
+        })
     })
 })

@@ -35,3 +35,4 @@ const connectWithRetry = async () => {
 }
 
 module.exports = connectWithRetry
+module.exports.__resetPool = () => { pool = undefined }

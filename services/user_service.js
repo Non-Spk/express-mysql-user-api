@@ -160,3 +160,5 @@ exports.deleteUserById = async (req, res, next) => {
         next(err)
     }
 }
+
+exports.isValidUser = isValidUser
